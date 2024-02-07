@@ -45,6 +45,10 @@ class InputBuffer {
             delete input_buffer_;
             input_buffer_ = nullptr;
         }
+
+        string get_input() {
+            return buffer_;
+        }
 };
 
 InputBuffer* InputBuffer::input_buffer_ = nullptr;
