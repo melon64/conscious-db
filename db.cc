@@ -5,11 +5,15 @@
 #include "InputBuffer.h"
 #include "MetaCommand.h"
 #include "Statement.h"
+#include "Table.h"
+#include "Row.h"
 
 using namespace std;
 
 int main(int argc, char* argv[]) {
     InputBuffer* input_buffer = InputBuffer::GetInstance();
+    Table *table = new Table();
+
     while (true) {
         input_buffer->print_prompt();
         input_buffer->read_input();
@@ -32,12 +36,21 @@ int main(int argc, char* argv[]) {
         switch (statement.prepare_statement(input)) {
             case PREPARE_SUCCESS:
                 break;
+            case PREPARE_SYNTAX_ERROR:
+                cout << "Syntax error. Could not parse statement.\n";
+                continue;
             case PREPARE_UNRECOGNIZED_STATEMENT:
                 cout << "Unrecognized keyword at start of '" << input << "'.\n";
                 continue;
         }
 
-        statement.execute_statement();
-        cout << "Executed.\n";
+        switch (statement.execute_statement(table)) {
+            case EXECUTE_SUCCESS:
+                cout << "Executed.\n";
+                break;
+            case EXECUTE_TABLE_FULL:
+                cout << "Error: Table full.\n";
+                continue;
+        }
     }
 }
