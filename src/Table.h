@@ -44,6 +44,10 @@ public:
         }
     }
 
+    int size() {
+        return num_rows;
+    }
+
 private:
     uint32_t num_rows;
     std::vector<void*> pages;

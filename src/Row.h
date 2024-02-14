@@ -16,21 +16,27 @@ public:
     void set_id(uint32_t id) { this->id = id; }
 
     const char* get_username() const { return username; }
-    void set_username(const char* username) { strncpy(this->username, username, USERNAME_SIZE - 1); this->username[USERNAME_SIZE - 1] = '\0'; }
+    void set_username(const char* username) {
+        strncpy(this->username, username, USERNAME_SIZE-1);
+        this->username[USERNAME_SIZE-1] = '\0';
+    }
 
     const char* get_email() const { return email; }
-    void set_email(const char* email) { strncpy(this->email, email, EMAIL_SIZE - 1); this->email[EMAIL_SIZE - 1] = '\0'; }
+    void set_email(const char* email) {
+        strncpy(this->email, email, EMAIL_SIZE-1);
+        this->email[EMAIL_SIZE-1] = '\0';
+    }
 
     void serialize(char* destination) const {
         memcpy(destination, &id, sizeof(id));
-        memcpy(destination + sizeof(id), username, USERNAME_SIZE);
-        memcpy(destination + sizeof(id) + USERNAME_SIZE, email, EMAIL_SIZE);
+        memcpy(destination + sizeof(id), username, sizeof(username));
+        memcpy(destination + sizeof(id) + sizeof(username), email, sizeof(email));
     }
 
     void deserialize(const char* source) {
         memcpy(&id, source, sizeof(id));
-        memcpy(username, source + sizeof(id), USERNAME_SIZE);
-        memcpy(email, source + sizeof(id) + USERNAME_SIZE, EMAIL_SIZE);
+        memcpy(username, source + sizeof(id), sizeof(username));
+        memcpy(email, source + sizeof(id) + sizeof(username), sizeof(email));
     }
 
 private:
