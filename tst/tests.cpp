@@ -28,10 +28,10 @@ TEST(DBTEST, MemoryTest){
     row.set_email("test");
 
     std::vector<void*> pages;
-    uint32_t PAGE_SIZE = 4096;
-    uint32_t TABLE_MAX_PAGES = 100;
-    uint32_t ROWS_PER_PAGE = PAGE_SIZE / sizeof(Row);
-    uint32_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGES;
+    size_t PAGE_SIZE = 4096;
+    size_t TABLE_MAX_PAGES = 100;
+    size_t ROWS_PER_PAGE = PAGE_SIZE / sizeof(Row);
+    size_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGES;
 
     pages.resize(TABLE_MAX_PAGES, nullptr);
 

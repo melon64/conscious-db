@@ -10,7 +10,7 @@
 using namespace std;
 
 typedef enum { STATEMENT_INSERT, STATEMENT_SELECT } StatementType;
-typedef enum { PREPARE_SUCCESS, PREPARE_UNRECOGNIZED_STATEMENT, PREPARE_SYNTAX_ERROR } PrepareResult;
+typedef enum { PREPARE_SUCCESS, PREPARE_UNRECOGNIZED_STATEMENT, PREPARE_SYNTAX_ERROR, PREPARE_STRING_TOO_LONG, PREPARE_NEGATIVE_ID } PrepareResult;
 typedef enum { EXECUTE_SUCCESS, EXECUTE_TABLE_FULL } ExecuteResult;
 
 
@@ -34,6 +34,15 @@ public:
             }
             if (args < 3) {
                 return PREPARE_SYNTAX_ERROR;
+            }
+            if (username.length() > USERNAME_SIZE) {
+                return PREPARE_STRING_TOO_LONG;
+            }
+            if (email.length() > EMAIL_SIZE) {
+                return PREPARE_STRING_TOO_LONG;
+            }
+            if (id < 0) {
+                return PREPARE_NEGATIVE_ID;
             }
 
             row_.set_id(id);

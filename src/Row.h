@@ -5,11 +5,11 @@
 #include <cstdint>
 #include <cstring>
 
+static const size_t USERNAME_SIZE = 32;
+static const size_t EMAIL_SIZE = 255;
+
 class Row {
 public:
-    static const size_t USERNAME_SIZE = 32;
-    static const size_t EMAIL_SIZE = 255;
-
     Row() : id(0), username{0}, email{0} {}
 
     uint32_t get_id() const { return id; }

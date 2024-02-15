@@ -40,6 +40,12 @@ int main(int argc, char* argv[]) {
         switch (statement.prepare_statement(input)) {
             case PREPARE_SUCCESS:
                 break;
+            case (PREPARE_NEGATIVE_ID):
+                cout << "ID must be positive.\n";
+                continue;
+            case (PREPARE_STRING_TOO_LONG):
+                cout << "String is too long.\n";
+                continue;
             case PREPARE_SYNTAX_ERROR:
                 cout << "Syntax error. Could not parse statement.\n";
                 continue;
