@@ -18,22 +18,24 @@ public:
     }
 
     ~Table() {
-    for (auto page : pages) {
-        if (page != nullptr) {
-            delete[] static_cast<char*>(page);
+        for (auto page : pages) {
+            if (page != nullptr)    {
+                delete[] static_cast<char*>(page);
+            }
         }
     }
-}
 
     bool insert(const Row& row) {
         if (num_rows >= TABLE_MAX_ROWS) {
             return false;
         }
-
         void* destination = row_slot(num_rows);
-        row.serialize(static_cast<char*>(destination));
-        num_rows++;
-        return true;
+        if (destination) {
+            row.serialize(static_cast<char*>(destination));
+            num_rows++;
+            return true;
+        }
+        return false;
     }
 
     void select() {

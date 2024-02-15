@@ -17,14 +17,14 @@ public:
 
     const char* get_username() const { return username; }
     void set_username(const char* username) {
-        strncpy(this->username, username, USERNAME_SIZE-1);
-        this->username[USERNAME_SIZE-1] = '\0';
+        strncpy(this->username, username, USERNAME_SIZE);
+        this->username[USERNAME_SIZE] = '\0';
     }
 
     const char* get_email() const { return email; }
     void set_email(const char* email) {
-        strncpy(this->email, email, EMAIL_SIZE-1);
-        this->email[EMAIL_SIZE-1] = '\0';
+        strncpy(this->email, email, EMAIL_SIZE);
+        this->email[EMAIL_SIZE] = '\0';
     }
 
     void serialize(char* destination) const {

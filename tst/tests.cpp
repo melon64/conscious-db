@@ -21,6 +21,31 @@ TEST(REPLTest, ReadInput) {
     ASSERT_EQ(input_buffer->get_input(), "test"); //input "test" for cin
 }
 
+TEST(DBTEST, MemoryTest){
+    Row row;
+    row.set_id(1);
+    row.set_username("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    row.set_email("test");
+
+    std::vector<void*> pages;
+    uint32_t PAGE_SIZE = 4096;
+    uint32_t TABLE_MAX_PAGES = 100;
+    uint32_t ROWS_PER_PAGE = PAGE_SIZE / sizeof(Row);
+    uint32_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGES;
+
+    pages.resize(TABLE_MAX_PAGES, nullptr);
+
+    pages[0] = new char[PAGE_SIZE];
+    void* destination = static_cast<char*>(pages[0]);
+    row.serialize(static_cast<char*>(destination));
+
+    Row row1;
+    row1.deserialize(static_cast<const char*>(destination));
+    std::cout << row1.get_id() << " " << row1.get_username() << " " << row1.get_email() << std::endl;
+
+    ASSERT_EQ(std::string(row1.get_username()), "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+}
+
 TEST(DBTest, MemoryTest1){
     InputBuffer* input_buffer = InputBuffer::GetInstance();
     Table *table = new Table();
@@ -35,6 +60,7 @@ TEST(DBTest, MemoryTest1){
     string input = input_buffer->get_input();
     
     Statement statement;
+    cout << "prepare statement" << endl;
     switch (statement.prepare_statement(input)) {
         case PREPARE_SUCCESS:
             break;
@@ -46,6 +72,7 @@ TEST(DBTest, MemoryTest1){
             break;
     }
 
+    cout << "execute statement" << endl;
     switch (statement.execute_statement(table)) {
         case EXECUTE_SUCCESS:
             cout << "Executed.\n";

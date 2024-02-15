@@ -22,8 +22,8 @@ public:
         if (input.substr(0, 6) == "insert") {
             type_ = STATEMENT_INSERT;
             int id;
-            char username[32];
-            char email[255];
+            std::string username;
+            std::string email;
             int args = 0;
             std::istringstream iss(input);
             std::string command;
@@ -37,8 +37,8 @@ public:
             }
 
             row_.set_id(id);
-            row_.set_username(username);
-            row_.set_email(email);
+            row_.set_username(username.c_str());
+            row_.set_email(email.c_str());
 
             return PREPARE_SUCCESS;
         }
