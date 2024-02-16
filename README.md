@@ -1,5 +1,5 @@
 # conscious-db
-A C++ SQLite clone.
+A C++ DBMS from scratch.
 
 ### Build
 - Unit tests in /tst
