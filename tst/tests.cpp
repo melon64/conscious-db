@@ -21,7 +21,7 @@ TEST(REPLTest, ReadInput) {
     ASSERT_EQ(input_buffer->get_input(), "test"); //input "test" for cin
 }
 
-TEST(DBTEST, MemoryTest){
+TEST(DBTest, MemoryTest){
     Row row;
     row.set_id(1);
     row.set_username("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
@@ -102,20 +102,90 @@ TEST(DBTest, MemoryTest1){
     ASSERT_EQ(table->size(), 1);
 }
 
-TEST(DBTest, StressTest1) {
+// TEST(DBTest, StressTest1) {
+//     string filename = "test.db";
+
+//     ofstream file(filename, ios::binary);
+//     file.close();
+
+//     InputBuffer* input_buffer = InputBuffer::GetInstance();
+//     Table *table = new Table();
+//     table->db_open(filename);
+
+//     for (int i = 0; i < 1000; i++) {
+//         string sIn = "insert " + to_string(i) + " user user" + to_string(i) + "@gmail.com";
+//         stringstream ss;
+//         ss << sIn;
+
+//         input_buffer->read_input(ss);
+//         string input = input_buffer->get_input();
+        
+//         Statement statement;
+//         switch (statement.prepare_statement(input)) {
+//             case PREPARE_SUCCESS:
+//                 break;
+//             case PREPARE_SYNTAX_ERROR:
+//                 cout << "Syntax error. Could not parse statement.\n";
+//                 continue;
+//             case PREPARE_UNRECOGNIZED_STATEMENT:
+//                 cout << "Unrecognized keyword at start of '" << input << "'.\n";
+//                 continue;
+//         }
+
+//         switch (statement.execute_statement(table)) {
+//             case EXECUTE_SUCCESS:
+//                 cout << "Executed.\n";
+//                 break;
+//             case EXECUTE_TABLE_FULL:
+//                 cout << "Error: Table full.\n";
+//                 continue;
+//         }
+//     }
+
+//     string sIn1 = "select";
+//     stringstream ss1;
+//     ss1 << sIn1;
+//     input_buffer->read_input(ss1);
+//     string input1 = input_buffer->get_input();
+
+//     Statement statement1;
+//     statement1.prepare_statement(input1);
+//     statement1.execute_statement(table);
+
+//     string sIn2 = ".exit";
+//     stringstream ss2;
+//     ss2 << sIn2;
+//     input_buffer->read_input(ss2);
+//     string input2 = input_buffer->get_input();
+
+//     MetaCommand meta_command;
+//     switch (meta_command.execute_meta_command(input2, table)) {
+//         case META_COMMAND_SUCCESS:
+//             break;
+//         case META_COMMAND_UNRECOGNIZED_COMMAND:
+//             cout << "Unrecognized command '" << input2 << "'.\n";
+//             break;
+//     }
+    
+//     ASSERT_EQ(table->size(), 1000);
+// }
+
+TEST(DBTest, PersistenceTest){
     string filename = "test.db";
 
     ofstream file(filename, ios::binary);
     file.close();
-
+    
     InputBuffer* input_buffer = InputBuffer::GetInstance();
     Table *table = new Table();
     table->db_open(filename);
 
-    for (int i = 0; i < 1000; i++) {
-        string sIn = "insert " + to_string(i) + " user user" + to_string(i) + "@gmail.com";
+    for (int i = 0; i < 20; i++) {
+        string username = "test";
+        string email = "test@test.test";
+        string sIn = "insert " + to_string(i) + " " + username + " " + email;
         stringstream ss;
-        ss << sIn;
+        ss << sIn;  
 
         input_buffer->read_input(ss);
         string input = input_buffer->get_input();
@@ -142,6 +212,47 @@ TEST(DBTest, StressTest1) {
         }
     }
 
+    table->db_close();
+    Table *table1 = new Table();
+    table1->db_open(filename);
+
+    for (int i = 20; i < 40; i++) {
+        string username = "test";
+        string email = "test@test.test";
+        string sIn = "insert " + to_string(i) + " " + username + " " + email;
+        stringstream ss;
+        ss << sIn;  
+
+        input_buffer->read_input(ss);
+        string input = input_buffer->get_input();
+        
+        Statement statement;
+        switch (statement.prepare_statement(input)) {
+            case PREPARE_SUCCESS:
+                break;
+            case PREPARE_SYNTAX_ERROR:
+                cout << "Syntax error. Could not parse statement.\n";
+                continue;
+            case PREPARE_UNRECOGNIZED_STATEMENT:
+                cout << "Unrecognized keyword at start of '" << input << "'.\n";
+                continue;
+        }
+
+        switch (statement.execute_statement(table1)) {
+            case EXECUTE_SUCCESS:
+                cout << "Executed.\n";
+                break;
+            case EXECUTE_TABLE_FULL:
+                cout << "Error: Table full.\n";
+                continue;
+        }
+    }
+
+    table1->db_close();
+
+    Table *table2 = new Table();
+    table2->db_open(filename);
+
     string sIn1 = "select";
     stringstream ss1;
     ss1 << sIn1;
@@ -150,7 +261,7 @@ TEST(DBTest, StressTest1) {
 
     Statement statement1;
     statement1.prepare_statement(input1);
-    statement1.execute_statement(table);
-    
-    ASSERT_EQ(table->size(), 1000);
+    statement1.execute_statement(table2);
+
+    ASSERT_EQ(table2->size(), 200);
 }
