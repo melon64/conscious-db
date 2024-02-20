@@ -6,10 +6,14 @@
 #include <string>
 #include <vector>
 #include <fstream>
-
-#include "Table.h"
+#include <memory>
 
 using namespace std;
+
+static const size_t PAGE_SIZE = 4096;
+static const size_t TABLE_MAX_PAGES = 100;
+static const size_t ROWS_PER_PAGE = PAGE_SIZE / sizeof(Row);
+static const size_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGES;
 
 class Pager {
 public:
@@ -63,10 +67,23 @@ public:
         }
         
         file_stream.write(pages[page_num].get(), size);
+        file_stream.flush();
+
         if (file_stream.bad()) {
             std::cerr << "Error writing to file\n";
             exit(EXIT_FAILURE);
         }
+
+        file_stream.seekg(0, std::ios::beg);
+        std::unique_ptr<char[]> buffer(new char[size]);
+        file_stream.read(buffer.get(), size);
+        
+        for (size_t i = 0; i < size; i += sizeof(Row)) {
+            Row row;
+            row.deserialize(buffer.get() + i);
+            cout << "entry: " << row.get_id() << " " << row.get_username() << " " << row.get_email() << endl;
+        }
+
     }
 
     int close () {
@@ -81,7 +98,7 @@ public:
         return file_length;
     }
 
-    vector<unique_ptr<char[]>> get_pages() const {
+    vector<unique_ptr<char[]>> &get_pages() {
         return pages;
     }
 

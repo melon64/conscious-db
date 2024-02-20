@@ -47,8 +47,14 @@ TEST(DBTEST, MemoryTest){
 }
 
 TEST(DBTest, MemoryTest1){
+    string filename = "test.db";
+
+    ofstream file(filename, ios::binary);
+    file.close();
+    
     InputBuffer* input_buffer = InputBuffer::GetInstance();
     Table *table = new Table();
+    table->db_open(filename);
 
     string username = string(32, 'a');
     string email = string(255, 'a');
@@ -97,8 +103,14 @@ TEST(DBTest, MemoryTest1){
 }
 
 TEST(DBTest, StressTest1) {
+    string filename = "test.db";
+
+    ofstream file(filename, ios::binary);
+    file.close();
+
     InputBuffer* input_buffer = InputBuffer::GetInstance();
     Table *table = new Table();
+    table->db_open(filename);
 
     for (int i = 0; i < 1000; i++) {
         string sIn = "insert " + to_string(i) + " user user" + to_string(i) + "@gmail.com";

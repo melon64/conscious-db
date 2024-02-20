@@ -10,11 +10,6 @@
 #include <vector>
 #include <memory>
 
-static const size_t PAGE_SIZE = 4096;
-static const size_t TABLE_MAX_PAGES = 100;
-static const size_t ROWS_PER_PAGE = PAGE_SIZE / sizeof(Row);
-static const size_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGES;
-
 class Table {
 public:
      Table() : num_rows(0), pager(nullptr) {}    

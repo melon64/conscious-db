@@ -15,8 +15,15 @@ using namespace std;
 // make all
 
 int main(int argc, char* argv[]) {
+    if (argc < 2){
+        cout << "Must supply a database filename.\n";
+        exit(EXIT_FAILURE);
+    }
+
+    string filename = argv[1];
     InputBuffer* input_buffer = InputBuffer::GetInstance();
     Table *table = new Table();
+    table->db_open(filename);
 
     while (true) {
         input_buffer->print_prompt();
@@ -26,7 +33,7 @@ int main(int argc, char* argv[]) {
 
         if (input[0] == '.') {
             MetaCommand meta_command;
-            switch (meta_command.execute_meta_command(input)) {
+            switch (meta_command.execute_meta_command(input, table)) {
                 case META_COMMAND_SUCCESS:
                     continue;
                 case META_COMMAND_UNRECOGNIZED_COMMAND:
