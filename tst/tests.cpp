@@ -21,7 +21,7 @@ TEST(REPLTest, ReadInput) {
     ASSERT_EQ(input_buffer->get_input(), "test"); //input "test" for cin
 }
 
-TEST(DBTEST, MemoryTest){
+TEST(DBTest, MemoryTest){
     Row row;
     row.set_id(1);
     row.set_username("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
@@ -121,6 +121,44 @@ TEST(DBTest, StressTest1) {
         string input = input_buffer->get_input();
         
         Statement statement;
+        statement.prepare_statement(input);
+        statement.execute_statement(table);
+    }
+
+    string sIn1 = "select";
+    stringstream ss1;
+    ss1 << sIn1;
+    input_buffer->read_input(ss1);
+    string input1 = input_buffer->get_input();
+
+    Statement statement1;
+    statement1.prepare_statement(input1);
+    statement1.execute_statement(table);
+    
+    ASSERT_EQ(table->size(), 1000);
+}
+
+TEST(DBTest, PersistenceTest){
+    string filename = "test.db";
+
+    ofstream file(filename, ios::binary);
+    file.close();
+    
+    InputBuffer* input_buffer = InputBuffer::GetInstance();
+    Table *table = new Table();
+    table->db_open(filename);
+
+    for (int i = 0; i < 100; i++) {
+        string username = "test";
+        string email = "test@test.test";
+        string sIn = "insert " + to_string(i) + " " + username + " " + email;
+        stringstream ss;
+        ss << sIn;  
+
+        input_buffer->read_input(ss);
+        string input = input_buffer->get_input();
+        
+        Statement statement;
         switch (statement.prepare_statement(input)) {
             case PREPARE_SUCCESS:
                 break;
@@ -142,6 +180,84 @@ TEST(DBTest, StressTest1) {
         }
     }
 
+    table->db_close();
+    Table *table1 = new Table();
+    table1->db_open(filename);
+
+    for (int i = 100; i < 200; i++) {
+        string username = "test";
+        string email = "test@test.test";
+        string sIn = "insert " + to_string(i) + " " + username + " " + email;
+        stringstream ss;
+        ss << sIn;  
+
+        input_buffer->read_input(ss);
+        string input = input_buffer->get_input();
+        
+        Statement statement;
+        switch (statement.prepare_statement(input)) {
+            case PREPARE_SUCCESS:
+                break;
+            case PREPARE_SYNTAX_ERROR:
+                cout << "Syntax error. Could not parse statement.\n";
+                continue;
+            case PREPARE_UNRECOGNIZED_STATEMENT:
+                cout << "Unrecognized keyword at start of '" << input << "'.\n";
+                continue;
+        }
+
+        switch (statement.execute_statement(table1)) {
+            case EXECUTE_SUCCESS:
+                cout << "Executed.\n";
+                break;
+            case EXECUTE_TABLE_FULL:
+                cout << "Error: Table full.\n";
+                continue;
+        }
+    }
+
+    table1->db_close();
+
+    Table *table2 = new Table();
+    table2->db_open(filename);
+
+    for (int i = 200; i < 300; i++) {
+        string username = "test";
+        string email = "test@test.test";
+        string sIn = "insert " + to_string(i) + " " + username + " " + email;
+        stringstream ss;
+        ss << sIn;  
+
+        input_buffer->read_input(ss);
+        string input = input_buffer->get_input();
+        
+        Statement statement;
+        switch (statement.prepare_statement(input)) {
+            case PREPARE_SUCCESS:
+                break;
+            case PREPARE_SYNTAX_ERROR:
+                cout << "Syntax error. Could not parse statement.\n";
+                continue;
+            case PREPARE_UNRECOGNIZED_STATEMENT:
+                cout << "Unrecognized keyword at start of '" << input << "'.\n";
+                continue;
+        }
+
+        switch (statement.execute_statement(table2)) {
+            case EXECUTE_SUCCESS:
+                cout << "Executed.\n";
+                break;
+            case EXECUTE_TABLE_FULL:
+                cout << "Error: Table full.\n";
+                continue;
+        }
+    }
+
+    table2->db_close();
+
+    Table *table3 = new Table();
+    table3->db_open(filename);
+
     string sIn1 = "select";
     stringstream ss1;
     ss1 << sIn1;
@@ -150,7 +266,7 @@ TEST(DBTest, StressTest1) {
 
     Statement statement1;
     statement1.prepare_statement(input1);
-    statement1.execute_statement(table);
-    
-    ASSERT_EQ(table->size(), 1000);
+    statement1.execute_statement(table3);
+
+    ASSERT_EQ(table3->size(), 300);
 }

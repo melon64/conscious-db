@@ -35,22 +35,32 @@ public:
             exit(EXIT_FAILURE);
         }
 
+        // cout << "page_num: " << page_num << endl;
+
         if (!pages[page_num]) {
             pages[page_num] = std::make_unique<char[]>(PAGE_SIZE);
             size_t num_pages = file_length / PAGE_SIZE;
+            // cout << "num_pages: " << num_pages << endl;
             if (file_length % PAGE_SIZE) {
                 num_pages++;
             }
-            if (page_num <= num_pages) {
+            if (page_num < num_pages) {
                 file_stream.seekg(page_num * PAGE_SIZE);
+                if (file_stream.fail()) {
+                    std::cerr << "Error seeking to page for reading p1\n";
+                    exit(EXIT_FAILURE);
+                }
                 file_stream.read(pages[page_num].get(), PAGE_SIZE);
-                if (file_stream.bad()) {
-                    std::cerr << "Error reading file\n";
+                if (file_stream.eof()) {
+                    // std::cerr << "Reached EOF\n";
+                    file_stream.clear();
+                }
+                else if (file_stream.fail()) {
+                    std::cerr << "Error reading file p1\n";
                     exit(EXIT_FAILURE);
                 }
             }
         }
-
         return pages[page_num].get();
     }
 
@@ -61,34 +71,43 @@ public:
         }
 
         file_stream.seekp(page_num * PAGE_SIZE);
-        if (file_stream.bad()) {
+        if (file_stream.fail()) {   
             std::cerr << "Error seeking to page for writing\n";
             exit(EXIT_FAILURE);
         }
-        
+
         file_stream.write(pages[page_num].get(), size);
         file_stream.flush();
 
-        if (file_stream.bad()) {
+        if (file_stream.fail()) {
             std::cerr << "Error writing to file\n";
             exit(EXIT_FAILURE);
         }
 
-        file_stream.seekg(0, std::ios::beg);
-        std::unique_ptr<char[]> buffer(new char[size]);
-        file_stream.read(buffer.get(), size);
-        
-        for (size_t i = 0; i < size; i += sizeof(Row)) {
-            Row row;
-            row.deserialize(buffer.get() + i);
-            cout << "entry: " << row.get_id() << " " << row.get_username() << " " << row.get_email() << endl;
+        char *buffer= new char[PAGE_SIZE];
+
+        file_stream.seekg(page_num * PAGE_SIZE);
+        if (file_stream.fail()) {
+            std::cerr << "Error seeking file p2\n";
+            exit(EXIT_FAILURE);
         }
 
+        file_stream.read(buffer, size);
+        if (file_stream.fail()) {
+            std::cerr << "Error reading file p2\n";
+            exit(EXIT_FAILURE);
+        }
+
+        // for (size_t i = 0; i < size; i += sizeof(Row)) {
+        //     Row row;
+        //     row.deserialize(buffer + i);
+        //     std::cout << "entry: " << row.get_id() << " " << row.get_username() << " " << row.get_email() << " endl" << std::endl;
+        // }
     }
 
     int close () {
         file_stream.close();
-        if (file_stream.bad()) {
+        if (file_stream.fail()) {
             return 1;
         }
         return 0;

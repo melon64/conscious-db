@@ -12,8 +12,8 @@ class Row {
 public:
     Row() : id(0), username{0}, email{0} {}
 
-    uint32_t get_id() const { return id; }
-    void set_id(uint32_t id) { this->id = id; }
+    size_t get_id() const { return id; }
+    void set_id(size_t id) { this->id = id; }
 
     const char* get_username() const { return username; }
     void set_username(const char* username) {
@@ -40,7 +40,7 @@ public:
     }
 
 private:
-    uint32_t id;
+    size_t id;
     char username[USERNAME_SIZE+1];
     char email[EMAIL_SIZE+1];
 };
