@@ -35,12 +35,9 @@ public:
             exit(EXIT_FAILURE);
         }
 
-        // cout << "page_num: " << page_num << endl;
-
         if (!pages[page_num]) {
             pages[page_num] = std::make_unique<char[]>(PAGE_SIZE);
             size_t num_pages = file_length / PAGE_SIZE;
-            // cout << "num_pages: " << num_pages << endl;
             if (file_length % PAGE_SIZE) {
                 num_pages++;
             }
@@ -52,7 +49,6 @@ public:
                 }
                 file_stream.read(pages[page_num].get(), PAGE_SIZE);
                 if (file_stream.eof()) {
-                    // std::cerr << "Reached EOF\n";
                     file_stream.clear();
                 }
                 else if (file_stream.fail()) {
@@ -97,12 +93,6 @@ public:
             std::cerr << "Error reading file p2\n";
             exit(EXIT_FAILURE);
         }
-
-        // for (size_t i = 0; i < size; i += sizeof(Row)) {
-        //     Row row;
-        //     row.deserialize(buffer + i);
-        //     std::cout << "entry: " << row.get_id() << " " << row.get_username() << " " << row.get_email() << " endl" << std::endl;
-        // }
     }
 
     int close () {
