@@ -185,8 +185,8 @@ TEST(DBTest, PersistenceTest){
     table1->db_open(filename);
 
     for (int i = 100; i < 200; i++) {
-        string username = "test";
-        string email = "test@test.test";
+        string username = string(32, 'a');
+        string email = string(255, 'a');
         string sIn = "insert " + to_string(i) + " " + username + " " + email;
         stringstream ss;
         ss << sIn;  
