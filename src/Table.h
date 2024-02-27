@@ -4,6 +4,7 @@
 #include "Row.h"
 #include "Table.h"
 #include "Pager.h"
+#include "Cursor.h"
 
 #include <iostream>
 #include <cstring>
@@ -12,18 +13,16 @@
 
 class Table {
 public:
-     Table() : num_rows(0), pager(nullptr) {}    
+    friend class Cursor;
+    Table() : num_rows(0), pager(nullptr) {}    
 
     void db_open(const std::string& filename) {
         pager = std::make_unique<Pager>(filename);
         num_rows = ((pager->get_file_length() / PAGE_SIZE) * ROWS_PER_PAGE) + ((pager->get_file_length() % PAGE_SIZE) / sizeof(Row));
-        // cout << "rows per page: " << ROWS_PER_PAGE << "\n";
-        // cout << "num_rows: " << num_rows << endl;
     }
 
     void db_close(){
         size_t num_full_pages = num_rows / ROWS_PER_PAGE;
-        // cout << "num_full_pages: " << num_full_pages << endl;
         for (size_t i = 0; i < num_full_pages; i++) {
             if (!pager->get_pages()[i]) {
                 continue;
@@ -32,10 +31,7 @@ public:
             pager->get_pages()[i].reset();
         }
 
-        // cout << "num_rows full flushed: " << num_rows << endl;
-
         size_t num_additional_rows = num_rows % ROWS_PER_PAGE;
-        // cout << "num_additional_rows: " << num_additional_rows << endl;
         if (num_additional_rows > 0) {
             size_t page_num = num_full_pages;
             if (pager->get_pages()[page_num]) {
@@ -43,8 +39,6 @@ public:
                 pager->get_pages()[page_num].reset();
             }
         }
-
-        // cout << "num_additional_rows partial flushed: " << num_additional_rows << endl;
 
         if (pager->close()) {
             std::cerr << "Error closing db file\n";
@@ -72,6 +66,14 @@ public:
             row.deserialize(static_cast<const char*>(row_slot(i)));
             std::cout << row.get_id() << " " << row.get_username() << " " << row.get_email() << std::endl;
         }
+    }
+
+    Cursor start() {
+        return Cursor(this, 0);
+    }
+
+    Cursor end() {
+        return Cursor(this, num_rows+1);
     }
 
     int size() {
