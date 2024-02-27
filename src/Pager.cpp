@@ -20,9 +20,14 @@ char* Pager::get_page(size_t page_num) {
         exit(EXIT_FAILURE);
     }
 
+    std::cout << "page_num: " << page_num << std::endl;
+    std::cout << "pages size: " << std::to_string(pages.size()) << "." << std::endl;
+
     if (!pages[page_num]) {
+        std::cout << "Allocating memory for page " << page_num << std::endl;
         pages[page_num] = std::make_unique<char[]>(PAGE_SIZE);
         size_t num_pages = file_length / PAGE_SIZE;
+        std::cout << "num_pages: " << num_pages << std::endl;
         if (file_length % PAGE_SIZE) {
             num_pages++;
         }
@@ -34,6 +39,7 @@ char* Pager::get_page(size_t page_num) {
             }
             file_stream.read(pages[page_num].get(), PAGE_SIZE);
             if (file_stream.eof()) {
+                // std::cerr << "Reached EOF\n";
                 file_stream.clear();
             }
             else if (file_stream.fail()) {
@@ -42,6 +48,7 @@ char* Pager::get_page(size_t page_num) {
             }
         }
     }
+    std::cout << "Returning page " << page_num << std::endl;
     return pages[page_num].get();
 }
 
