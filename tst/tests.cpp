@@ -66,29 +66,32 @@ TEST(DBTest, MemoryTest1){
     string input = input_buffer->get_input();
     
     Statement statement;
-    cout << "prepare statement" << endl;
     switch (statement.prepare_statement(input)) {
-        case PREPARE_SUCCESS:
+        case PrepareResult::SUCCESS:
             break;
-        case PREPARE_SYNTAX_ERROR:
+        case PrepareResult::NEGATIVE_ID:
+            cout << "ID must be positive.\n";
+            break;
+        case PrepareResult::STRING_TOO_LONG:
+            cout << "String is too long.\n";
+            break;
+        case PrepareResult::SYNTAX_ERROR:
             cout << "Syntax error. Could not parse statement.\n";
             break;
-        case PREPARE_UNRECOGNIZED_STATEMENT:
+        case PrepareResult::UNRECOGNIZED_STATEMENT:
             cout << "Unrecognized keyword at start of '" << input << "'.\n";
             break;
     }
 
-    cout << "execute statement" << endl;
     switch (statement.execute_statement(table)) {
-        case EXECUTE_SUCCESS:
+        case ExecuteResult::SUCCESS:
             cout << "Executed.\n";
             break;
-        case EXECUTE_TABLE_FULL:
+        case ExecuteResult::TABLE_FULL:
             cout << "Error: Table full.\n";
             break;
     }
-
-
+    
     string sIn1 = "select";
     stringstream ss1;
     ss1 << sIn1;
@@ -160,21 +163,27 @@ TEST(DBTest, PersistenceTest){
         
         Statement statement;
         switch (statement.prepare_statement(input)) {
-            case PREPARE_SUCCESS:
+            case PrepareResult::SUCCESS:
                 break;
-            case PREPARE_SYNTAX_ERROR:
+            case PrepareResult::NEGATIVE_ID:
+                cout << "ID must be positive.\n";
+                continue;
+            case PrepareResult::STRING_TOO_LONG:
+                cout << "String is too long.\n";
+                continue;
+            case PrepareResult::SYNTAX_ERROR:
                 cout << "Syntax error. Could not parse statement.\n";
                 continue;
-            case PREPARE_UNRECOGNIZED_STATEMENT:
+            case PrepareResult::UNRECOGNIZED_STATEMENT:
                 cout << "Unrecognized keyword at start of '" << input << "'.\n";
                 continue;
         }
 
         switch (statement.execute_statement(table)) {
-            case EXECUTE_SUCCESS:
+            case ExecuteResult::SUCCESS:
                 cout << "Executed.\n";
                 break;
-            case EXECUTE_TABLE_FULL:
+            case ExecuteResult::TABLE_FULL:
                 cout << "Error: Table full.\n";
                 continue;
         }
@@ -196,21 +205,27 @@ TEST(DBTest, PersistenceTest){
         
         Statement statement;
         switch (statement.prepare_statement(input)) {
-            case PREPARE_SUCCESS:
+            case PrepareResult::SUCCESS:
                 break;
-            case PREPARE_SYNTAX_ERROR:
+            case PrepareResult::NEGATIVE_ID:
+                cout << "ID must be positive.\n";
+                continue;
+            case PrepareResult::STRING_TOO_LONG:
+                cout << "String is too long.\n";
+                continue;
+            case PrepareResult::SYNTAX_ERROR:
                 cout << "Syntax error. Could not parse statement.\n";
                 continue;
-            case PREPARE_UNRECOGNIZED_STATEMENT:
+            case PrepareResult::UNRECOGNIZED_STATEMENT:
                 cout << "Unrecognized keyword at start of '" << input << "'.\n";
                 continue;
         }
 
-        switch (statement.execute_statement(table1)) {
-            case EXECUTE_SUCCESS:
+        switch (statement.execute_statement(table)) {
+            case ExecuteResult::SUCCESS:
                 cout << "Executed.\n";
                 break;
-            case EXECUTE_TABLE_FULL:
+            case ExecuteResult::TABLE_FULL:
                 cout << "Error: Table full.\n";
                 continue;
         }
@@ -233,21 +248,27 @@ TEST(DBTest, PersistenceTest){
         
         Statement statement;
         switch (statement.prepare_statement(input)) {
-            case PREPARE_SUCCESS:
+            case PrepareResult::SUCCESS:
                 break;
-            case PREPARE_SYNTAX_ERROR:
+            case PrepareResult::NEGATIVE_ID:
+                cout << "ID must be positive.\n";
+                continue;
+            case PrepareResult::STRING_TOO_LONG:
+                cout << "String is too long.\n";
+                continue;
+            case PrepareResult::SYNTAX_ERROR:
                 cout << "Syntax error. Could not parse statement.\n";
                 continue;
-            case PREPARE_UNRECOGNIZED_STATEMENT:
+            case PrepareResult::UNRECOGNIZED_STATEMENT:
                 cout << "Unrecognized keyword at start of '" << input << "'.\n";
                 continue;
         }
 
-        switch (statement.execute_statement(table2)) {
-            case EXECUTE_SUCCESS:
+        switch (statement.execute_statement(table)) {
+            case ExecuteResult::SUCCESS:
                 cout << "Executed.\n";
                 break;
-            case EXECUTE_TABLE_FULL:
+            case ExecuteResult::TABLE_FULL:
                 cout << "Error: Table full.\n";
                 continue;
         }

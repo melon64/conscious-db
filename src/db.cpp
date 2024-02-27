@@ -10,10 +10,6 @@
 
 using namespace std;
 
-// build cmds
-// cmake .. -DCMAKE_BUILD_TYPE=Debug -G "MinGW Makefiles"
-// make all
-
 int main(int argc, char* argv[]) {
     if (argc < 2){
         cout << "Must supply a database filename.\n";
@@ -34,9 +30,9 @@ int main(int argc, char* argv[]) {
         if (input[0] == '.') {
             MetaCommand meta_command;
             switch (meta_command.execute_meta_command(input, table)) {
-                case META_COMMAND_SUCCESS:
+                case MetaCommandResult::SUCCESS:
                     continue;
-                case META_COMMAND_UNRECOGNIZED_COMMAND:
+                case MetaCommandResult::UNRECOGNIZED_COMMAND:
                     cout << "Unrecognized command '" << input << "'.\n";
                     continue;
             }
@@ -45,27 +41,27 @@ int main(int argc, char* argv[]) {
         Statement statement;
 
         switch (statement.prepare_statement(input)) {
-            case PREPARE_SUCCESS:
+            case PrepareResult::SUCCESS:
                 break;
-            case (PREPARE_NEGATIVE_ID):
+            case PrepareResult::NEGATIVE_ID:
                 cout << "ID must be positive.\n";
                 continue;
-            case (PREPARE_STRING_TOO_LONG):
+            case PrepareResult::STRING_TOO_LONG:
                 cout << "String is too long.\n";
                 continue;
-            case PREPARE_SYNTAX_ERROR:
+            case PrepareResult::SYNTAX_ERROR:
                 cout << "Syntax error. Could not parse statement.\n";
                 continue;
-            case PREPARE_UNRECOGNIZED_STATEMENT:
+            case PrepareResult::UNRECOGNIZED_STATEMENT:
                 cout << "Unrecognized keyword at start of '" << input << "'.\n";
                 continue;
         }
 
         switch (statement.execute_statement(table)) {
-            case EXECUTE_SUCCESS:
+            case ExecuteResult::SUCCESS:
                 cout << "Executed.\n";
                 break;
-            case EXECUTE_TABLE_FULL:
+            case ExecuteResult::TABLE_FULL:
                 cout << "Error: Table full.\n";
                 continue;
         }

@@ -1,91 +1,28 @@
 #ifndef STATEMENT_H
 #define STATEMENT_H
 
-#include <iostream>
 #include <string>
-#include <sstream>
 #include "Row.h"
 #include "Table.h"
 
-using namespace std;
-
-typedef enum { STATEMENT_INSERT, STATEMENT_SELECT } StatementType;
-typedef enum { PREPARE_SUCCESS, PREPARE_UNRECOGNIZED_STATEMENT, PREPARE_SYNTAX_ERROR, PREPARE_STRING_TOO_LONG, PREPARE_NEGATIVE_ID } PrepareResult;
-typedef enum { EXECUTE_SUCCESS, EXECUTE_TABLE_FULL } ExecuteResult;
-
+enum class StatementType { INSERT, SELECT };
+enum class PrepareResult { SUCCESS, UNRECOGNIZED_STATEMENT, SYNTAX_ERROR, STRING_TOO_LONG, NEGATIVE_ID };
+enum class ExecuteResult { SUCCESS, TABLE_FULL };
 
 class Statement {
 public:
-    Statement() {}
+    Statement();
 
-    PrepareResult prepare_statement(string input) {
-        if (input.substr(0, 6) == "insert") {
-            type_ = STATEMENT_INSERT;
-            int id;
-            std::string username;
-            std::string email;
-            int args = 0;
-            std::istringstream iss(input);
-            std::string command;
-            iss >> command;
-            if (command == "insert") {
-                iss >> id >> username >> email;
-                args = (iss.fail() ? -1 : 3);
-            }
-            if (args < 3) {
-                return PREPARE_SYNTAX_ERROR;
-            }
-            if (username.length() > USERNAME_SIZE) {
-                return PREPARE_STRING_TOO_LONG;
-            }
-            if (email.length() > EMAIL_SIZE) {
-                return PREPARE_STRING_TOO_LONG;
-            }
-            if (id < 0) {
-                return PREPARE_NEGATIVE_ID;
-            }
+    PrepareResult prepare_statement(const std::string& input);
 
-            row_.set_id(id);
-            row_.set_username(username.c_str());
-            row_.set_email(email.c_str());
-
-            return PREPARE_SUCCESS;
-        }
-        if (input.substr(0, 6) == "select") {
-            type_ = STATEMENT_SELECT;
-            return PREPARE_SUCCESS;
-        }
-        return PREPARE_UNRECOGNIZED_STATEMENT;
-    }
-
-    ExecuteResult execute_insert(Statement *statement, Table *table) {
-        if (table->insert(statement->row_)){
-            return EXECUTE_SUCCESS;
-        } else {
-            return EXECUTE_TABLE_FULL;
-        }
-    }
-
-    ExecuteResult execute_select(Statement *statement, Table *table) {
-        table->select();
-        return EXECUTE_SUCCESS;
-    }
-
-    ExecuteResult execute_statement(Table *table) {
-        switch (type_) {
-            case STATEMENT_INSERT:
-                return execute_insert(this, table);
-                break;
-            case STATEMENT_SELECT:
-                return execute_select(this, table);
-                break;
-        }
-        return EXECUTE_SUCCESS;
-    }
+    ExecuteResult execute_statement(Table* table);
 
 private:
     StatementType type_;
     Row row_;
+
+    ExecuteResult execute_insert(Table* table);
+    ExecuteResult execute_select(Table* table);
 };
 
 #endif
