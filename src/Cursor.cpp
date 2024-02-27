@@ -5,11 +5,9 @@ Cursor::Cursor(Table* table, size_t row) : table(table), row_num(row), end_of_ta
 
 void* Cursor::operator*() {
     size_t page_num = row_num / ROWS_PER_PAGE;
-    std::cout << "getting page" << std::endl;
     void* page = table->pager->get_page(page_num);
-    std::cout << "got page" << std::endl;
     size_t row_offset = row_num % ROWS_PER_PAGE;
-    size_t byte_offset = row_offset * sizeof(Row);
+    size_t byte_offset = row_offset * sizeof(Row);  
     return page + byte_offset;
 }
 

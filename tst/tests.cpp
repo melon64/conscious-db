@@ -190,6 +190,7 @@ TEST(DBTest, PersistenceTest){
     }
 
     table->db_close();
+
     Table *table1 = new Table();
     table1->db_open(filename);
 
@@ -221,7 +222,7 @@ TEST(DBTest, PersistenceTest){
                 continue;
         }
 
-        switch (statement.execute_statement(table)) {
+        switch (statement.execute_statement(table1)) {
             case ExecuteResult::SUCCESS:
                 cout << "Executed.\n";
                 break;
@@ -232,6 +233,7 @@ TEST(DBTest, PersistenceTest){
     }
 
     table1->db_close();
+    delete table1;
 
     Table *table2 = new Table();
     table2->db_open(filename);
@@ -264,7 +266,7 @@ TEST(DBTest, PersistenceTest){
                 continue;
         }
 
-        switch (statement.execute_statement(table)) {
+        switch (statement.execute_statement(table2)) {
             case ExecuteResult::SUCCESS:
                 cout << "Executed.\n";
                 break;
@@ -275,6 +277,7 @@ TEST(DBTest, PersistenceTest){
     }
 
     table2->db_close();
+    delete table2;
 
     Table *table3 = new Table();
     table3->db_open(filename);

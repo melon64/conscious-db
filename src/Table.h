@@ -31,7 +31,7 @@ public:
 
 private:
     size_t num_rows;
-    std::unique_ptr<Pager> pager;
+    std::shared_ptr<Pager> pager;
 
     void* row_slot(size_t row_num);
 };

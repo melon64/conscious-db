@@ -3,9 +3,8 @@
 Table::Table() : num_rows(0), pager(nullptr) {}
 
 void Table::db_open(const std::string& filename) {
-    pager = std::make_unique<Pager>(filename);
+    pager = std::make_shared<Pager>(filename);
     num_rows = ((pager->get_file_length() / PAGE_SIZE) * ROWS_PER_PAGE) + ((pager->get_file_length() % PAGE_SIZE) / sizeof(Row));
-    std::cout << "num_rows: " << num_rows << std::endl;
 }
 
 void Table::db_close() {
@@ -39,9 +38,7 @@ bool Table::insert(const Row& row) {
         return false;
     }
     Cursor end = this->end();
-    std::cout << "serializing" << std::endl;
     row.serialize(static_cast<char*>(*end));
-    std::cout << "row serialized" << std::endl;
     num_rows++;
     return true;
 }
