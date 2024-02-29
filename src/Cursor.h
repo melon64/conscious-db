@@ -6,7 +6,7 @@
 class Table;
 class Cursor {
 public:
-    Cursor(Table* table, size_t row);
+    Cursor(Table* table, size_t page_num, size_t cell_num, bool is_end_of_table = false);
 
     void* operator*();
 
@@ -18,7 +18,8 @@ public:
 
 private:
     Table* table;
-    size_t row_num;
+    size_t page_num;
+    size_t cell_num;
     bool end_of_table;
 };
 

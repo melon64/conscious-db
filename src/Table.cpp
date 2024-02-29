@@ -8,22 +8,12 @@ void Table::db_open(const std::string& filename) {
 }
 
 void Table::db_close() {
-    size_t num_full_pages = num_rows / ROWS_PER_PAGE;
-    for (size_t i = 0; i < num_full_pages; i++) {
+    for (size_t i = 0; i < pager->get_pages().size(); i++) {
         if (!pager->get_pages()[i]) {
             continue;
         }
-        pager->flush(i, PAGE_SIZE);
+        pager->flush(i);
         pager->get_pages()[i].reset();
-    }
-
-    size_t num_additional_rows = num_rows % ROWS_PER_PAGE;
-    if (num_additional_rows > 0) {
-        size_t page_num = num_full_pages;
-        if (pager->get_pages()[page_num]) {
-            pager->flush(page_num, num_additional_rows * sizeof(Row));
-            pager->get_pages()[page_num].reset();
-        }
     }
 
     if (pager->close()) {
@@ -52,21 +42,26 @@ void Table::select() {
 }
 
 Cursor Table::start() {
-    return Cursor(this, 0);
+    void *root_node = pager->get_page(root_page_num);
+    size_t num_cells = *leaf_node_num_cells(root_node);
+    return Cursor(this, root_page_num, 0, num_cells == 0);
 }
 
 Cursor Table::end() {
-    return Cursor(this, num_rows);
+    void *root_node = pager->get_page(root_page_num);
+    size_t num_cells = *leaf_node_num_cells(root_node);
+
+    return Cursor(this, root_page_num, num_cells, true);
 }
 
 int Table::size() {
     return num_rows;
 }
 
-void* Table::row_slot(size_t row_num) {
-    size_t page_num = row_num / ROWS_PER_PAGE;
-    char* page = pager->get_page(page_num);
-    size_t row_offset = row_num % ROWS_PER_PAGE;
-    size_t byte_offset = row_offset * sizeof(Row);
-    return page + byte_offset;
-}
+// void* Table::row_slot(size_t row_num) {
+//     size_t page_num = row_num / ROWS_PER_PAGE;
+//     char* page = pager->get_page(page_num);
+//     size_t row_offset = row_num % ROWS_PER_PAGE;
+//     size_t byte_offset = row_offset * sizeof(Row);
+//     return page + byte_offset;
+// }

@@ -10,8 +10,6 @@
 
 static const size_t PAGE_SIZE = 4096;
 static const size_t TABLE_MAX_PAGES = 100;
-static const size_t ROWS_PER_PAGE = PAGE_SIZE / sizeof(Row);
-static const size_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGES;
 
 class Pager {
 public:
@@ -19,7 +17,7 @@ public:
 
     char* get_page(size_t page_num);
 
-    void flush(size_t page_num, size_t size);
+    void flush(size_t page_num);
 
     int close();
 
@@ -30,6 +28,7 @@ public:
 private:
     std::streamoff file_length;
     std::fstream file_stream;
+    size_t num_pages;
     std::vector<std::unique_ptr<char[]>> pages;
 };
 

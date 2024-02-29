@@ -30,10 +30,10 @@ public:
     int size();
 
 private:
-    size_t num_rows;
+    size_t root_page_num;
     std::shared_ptr<Pager> pager;
 
-    void* row_slot(size_t row_num);
+    // void* row_slot(size_t row_num);
 };
 
 #endif

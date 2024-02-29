@@ -42,11 +42,15 @@ char* Pager::get_page(size_t page_num) {
                 exit(EXIT_FAILURE);
             }
         }
+        if (page_num >= num_pages){
+            num_pages = page_num + 1;
+        }
     }
+    
     return pages[page_num].get();
 }
 
-void Pager::flush(size_t page_num, size_t size) {
+void Pager::flush(size_t page_num) {
     if (!pages[page_num]) {
         std::cerr << "Tried to flush null page\n";
         exit(EXIT_FAILURE);
@@ -58,7 +62,7 @@ void Pager::flush(size_t page_num, size_t size) {
         exit(EXIT_FAILURE);
     }
 
-    file_stream.write(pages[page_num].get(), size);
+    file_stream.write(pages[page_num].get(), PAGE_SIZE);
     file_stream.flush();
 
     if (file_stream.fail()) {
@@ -74,7 +78,7 @@ void Pager::flush(size_t page_num, size_t size) {
         exit(EXIT_FAILURE);
     }
 
-    file_stream.read(buffer, size);
+    file_stream.read(buffer, PAGE_SIZE);
     if (file_stream.fail()) {
         std::cerr << "Error reading file p2\n";
         exit(EXIT_FAILURE);
