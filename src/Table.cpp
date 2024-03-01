@@ -1,10 +1,13 @@
 #include "Table.h"
 
-Table::Table() : num_rows(0), pager(nullptr) {}
+Table::Table() : root_page_num(0), pager(nullptr) {}
 
 void Table::db_open(const std::string& filename) {
     pager = std::make_shared<Pager>(filename);
-    num_rows = ((pager->get_file_length() / PAGE_SIZE) * ROWS_PER_PAGE) + ((pager->get_file_length() % PAGE_SIZE) / sizeof(Row));
+    if (pager->get_pages().size() == 0){
+        void *root_node = pager->get_page(0);
+        initialize_leaf_node(root_node);
+    }
 }
 
 void Table::db_close() {
@@ -32,6 +35,8 @@ bool Table::insert(const Row& row) {
     num_rows++;
     return true;
 }
+
+
 
 void Table::select() {
     for (Cursor cursor = this->start(); cursor != this->end(); ++cursor) {
