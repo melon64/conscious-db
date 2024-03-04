@@ -16,7 +16,7 @@ public:
 
     bool operator!=(const Cursor& other) const;
 
-private:
+// private:
     Table* table;
     size_t page_num;
     size_t cell_num;

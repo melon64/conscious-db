@@ -5,6 +5,29 @@
 #include "Pager.h"
 #include "Row.h"
 
+//Node Header
+const uint32_t NODE_TYPE_SIZE = sizeof(uint8_t);
+const uint32_t NODE_TYPE_OFFSET = 0;
+const uint32_t IS_ROOT_SIZE = sizeof(uint8_t);
+const uint32_t IS_ROOT_OFFSET = NODE_TYPE_SIZE;
+const uint32_t PARENT_POINTER_SIZE = sizeof(uint32_t);
+const uint32_t PARENT_POINTER_OFFSET = IS_ROOT_OFFSET + IS_ROOT_SIZE;
+const uint8_t COMMON_NODE_HEADER_SIZE = NODE_TYPE_SIZE + IS_ROOT_SIZE + PARENT_POINTER_SIZE;
+
+//Leaf Node Header
+const uint32_t LEAF_NODE_NUM_CELLS_SIZE = sizeof(uint32_t);
+const uint32_t LEAF_NODE_NUM_CELLS_OFFSET = COMMON_NODE_HEADER_SIZE;
+const uint32_t LEAF_NODE_HEADER_SIZE = COMMON_NODE_HEADER_SIZE + LEAF_NODE_NUM_CELLS_SIZE;
+
+//Leaf Node Body
+const uint32_t LEAF_NODE_KEY_SIZE = sizeof(uint32_t);
+const uint32_t LEAF_NODE_KEY_OFFSET = 0;
+const uint32_t LEAF_NODE_VALUE_SIZE = sizeof(Row);
+const uint32_t LEAF_NODE_VALUE_OFFSET = LEAF_NODE_KEY_OFFSET + LEAF_NODE_KEY_SIZE;
+const uint32_t LEAF_NODE_CELL_SIZE = LEAF_NODE_KEY_SIZE + LEAF_NODE_VALUE_SIZE;
+const uint32_t LEAF_NODE_SPACE_FOR_CELLS = PAGE_SIZE - LEAF_NODE_HEADER_SIZE;
+const uint32_t LEAF_NODE_MAX_CELLS = LEAF_NODE_SPACE_FOR_CELLS / LEAF_NODE_CELL_SIZE;
+
 enum class NodeType {
     Internal,
     Leaf
@@ -12,60 +35,35 @@ enum class NodeType {
 
 class BTreeNode {
 public:
-    BTreeNode(NodeType type, bool isRoot = false): nodeType(type), isRoot(isRoot), parentPointer(0), numCells(0) {}
+    BTreeNode(void *node): node(node) {}
 
-    NodeType getNodeType() const { return nodeType; }
-    bool getIsRoot() const { return isRoot; }
-    void setIsRoot(bool value) { isRoot = value; }
-    size_t getParentPointer() const { return parentPointer; }
-    void setParentPointer(size_t pointer) { parentPointer = pointer; }
-    size_t getNumCells() const { return numCells; }
+    // NodeType getNodeType() const { return nodeType; }
+    // bool getIsRoot() const { return isRoot; }
+    // void setIsRoot(bool value) { isRoot = value; }
 
-    void initializeLeafNode() {
-        numCells = 0;
+    uint32_t *leaf_node_num_cells(){
+        return static_cast<uint32_t*>(node + LEAF_NODE_NUM_CELLS_OFFSET);
     }
 
-    size_t* leafNodeKey(size_t cellNum) {
-        char* cellPtr = reinterpret_cast<char*>(leafNodeCell(cellNum));
-        return reinterpret_cast<size_t*>(cellPtr);
+    void* leaf_node_cell(uint32_t cell_num){
+        return node + LEAF_NODE_HEADER_SIZE + cell_num * LEAF_NODE_CELL_SIZE;
     }
 
-    char* leafNodeValue(size_t cellNum) {
-        char* cellPtr = reinterpret_cast<char*>(leafNodeCell(cellNum));
-        return cellPtr + LEAF_NODE_KEY_SIZE;
+    uint32_t *leaf_node_key(uint32_t cell_num){
+        return static_cast<uint32_t*>(leaf_node_cell(cell_num));
     }
 
-    void insertLeafNode(size_t key, const char* value) {
-        // Simple insertion logic for demonstration
-        // In a real implementation, you would need to find the correct position
-        // and possibly split the leaf node if it's full
-        if (numCells >= LEAF_NODE_MAX_CELLS) {
-            // Node full, handle splitting or return error
-            return;
-        }
-        char* cellPtr = reinterpret_cast<char*>(leafNodeCell(numCells));
-        std::memcpy(cellPtr, &key, sizeof(key));
-        std::memcpy(cellPtr + LEAF_NODE_KEY_SIZE, value, sizeof(Row));
-        numCells++;
+    void* leaf_node_value(uint32_t cell_num){
+        return leaf_node_cell(cell_num) + LEAF_NODE_KEY_SIZE;
     }
+
+    void initialize_leaf_node(){
+        *leaf_node_num_cells() = 0;
+    }
+    
 
 private:
-    NodeType nodeType;
-    bool isRoot;
-    size_t parentPointer;
-    size_t numCells; // For leaf nodes
-
-    static constexpr size_t LEAF_NODE_KEY_SIZE = sizeof(size_t);
-    static constexpr size_t LEAF_NODE_VALUE_SIZE = sizeof(Row);
-    static constexpr size_t LEAF_NODE_CELL_SIZE = LEAF_NODE_KEY_SIZE + LEAF_NODE_VALUE_SIZE;
-    static constexpr size_t LEAF_NODE_HEADER_SIZE = sizeof(nodeType) + sizeof(isRoot) + sizeof(parentPointer) + sizeof(numCells);
-    static constexpr size_t LEAF_NODE_SPACE_FOR_CELLS = PAGE_SIZE - LEAF_NODE_HEADER_SIZE;
-    static constexpr size_t LEAF_NODE_MAX_CELLS = LEAF_NODE_SPACE_FOR_CELLS / LEAF_NODE_CELL_SIZE;
-
-    // Memory layout simulation
-    char data[PAGE_SIZE]; // Represents the node's data in memory
-
-    void* leafNodeCell(size_t cellNum) {
-        return data + LEAF_NODE_HEADER_SIZE + cellNum * LEAF_NODE_CELL_SIZE;
-    }
+    void *node;
+    // NodeType nodeType;
+    // bool isRoot;
 };

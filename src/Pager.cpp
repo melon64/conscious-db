@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-Pager::Pager(const std::string& filename) : file_length(0), pages() {
+Pager::Pager(const std::string& filename) : file_length(0), pages(file_length / PAGE_SIZE) {
     file_stream.open(filename, std::ios::in | std::ios::out | std::ios::binary | std::ios::ate);
     if (!file_stream.is_open()) {
         std::cerr << "Unable to open file\n";
@@ -10,6 +10,10 @@ Pager::Pager(const std::string& filename) : file_length(0), pages() {
     }
     file_length = file_stream.tellg();
     file_stream.seekg(0, std::ios::beg);
+    if (file_length % PAGE_SIZE) {
+        std::cerr << "Db file is not a whole number of pages. Corrupt file\n";
+        exit(EXIT_FAILURE);
+    }
 
     pages.resize(TABLE_MAX_PAGES);
 }

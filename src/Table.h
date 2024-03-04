@@ -4,6 +4,7 @@
 #include "Row.h"
 #include "Pager.h"
 #include "Cursor.h"
+#include "BTreeNode.h"
 
 #include <iostream>
 #include <memory>
@@ -20,6 +21,8 @@ public:
     void db_close();
 
     bool insert(const Row& row);
+
+    void leaf_node_insert(Cursor *cursor, uint32_t key, Row* value);
 
     void select();
 
