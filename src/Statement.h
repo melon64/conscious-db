@@ -7,7 +7,7 @@
 
 enum class StatementType { INSERT, SELECT };
 enum class PrepareResult { SUCCESS, UNRECOGNIZED_STATEMENT, SYNTAX_ERROR, STRING_TOO_LONG, NEGATIVE_ID };
-enum class ExecuteResult { SUCCESS, TABLE_FULL };
+enum class ExecuteResult { SUCCESS, DUPLICATE_KEY, TABLE_FULL };
 
 class Statement {
 public:

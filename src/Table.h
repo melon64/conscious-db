@@ -20,9 +20,9 @@ public:
 
     void db_close();
 
-    bool insert(const Row& row);
+    int insert(const Row& row);
 
-    void leaf_node_insert(Cursor *cursor, uint32_t key, Row* value);
+    void leaf_node_insert(Cursor cursor, const uint32_t &key, const Row &value);
 
     void select();
 
@@ -35,6 +35,10 @@ public:
     void print_constants();
 
     void print_tree();
+
+    Cursor table_find(uint32_t key);
+
+    Cursor leaf_node_find(uint32_t key);
 
 private:
     size_t root_page_num;

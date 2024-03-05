@@ -8,10 +8,12 @@ MetaCommandResult MetaCommand::execute_meta_command(std::string input, Table* ta
     else if (input == ".constants"){
         std::cout << "Constants:\n";
         table->print_constants();
+        return MetaCommandResult::SUCCESS;
     }
     else if (input == ".btree"){
         std::cout << "Tree:\n";
         table->print_tree();
+        return MetaCommandResult::SUCCESS;
     }
     else {
         return MetaCommandResult::UNRECOGNIZED_COMMAND;

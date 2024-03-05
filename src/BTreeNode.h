@@ -6,7 +6,6 @@
 #include <cstring>
 #include <iostream>
 
-#include "Pager.h"
 #include "Row.h"
 
 //Node Header
@@ -41,9 +40,15 @@ class BTreeNode {
 public:
     BTreeNode(void *node): node(node) {}
 
-    // NodeType getNodeType() const { return nodeType; }
-    // bool getIsRoot() const { return isRoot; }
-    // void setIsRoot(bool value) { isRoot = value; }
+    NodeType get_node_type() const {
+        uint8_t value = *static_cast<uint8_t*>(node + NODE_TYPE_OFFSET);
+        return static_cast<NodeType>(value);
+    }
+
+    void set_node_type(NodeType nodeType){
+        uint8_t value = static_cast<uint8_t>(nodeType);
+        *static_cast<uint8_t*>(node + NODE_TYPE_OFFSET) = value;
+    }
 
     uint32_t *leaf_node_num_cells(){
         return static_cast<uint32_t*>(node + LEAF_NODE_NUM_CELLS_OFFSET);
@@ -62,6 +67,7 @@ public:
     }
 
     void initialize_leaf_node(){
+        set_node_type(NodeType::Leaf);
         *leaf_node_num_cells() = 0;
     }
 
@@ -77,8 +83,6 @@ public:
 
 private:
     void *node;
-    // NodeType nodeType;
-    // bool isRoot;
 };
 
 #endif

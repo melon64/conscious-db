@@ -54,9 +54,14 @@ ExecuteResult Statement::execute_statement(Table* table) {
 }
 
 ExecuteResult Statement::execute_insert(Table* table) {
-    if (table->insert(row_)) {
+    int res = table->insert(row_);
+    if (res == 1) {
         return ExecuteResult::SUCCESS;
-    } else {
+    }
+    else if (res == -1){
+        return ExecuteResult::DUPLICATE_KEY;
+    } 
+    else {
         return ExecuteResult::TABLE_FULL;
     }
 }

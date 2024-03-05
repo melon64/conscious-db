@@ -15,6 +15,7 @@ Pager::Pager(const std::string& filename) : file_length(0), pages(file_length / 
         exit(EXIT_FAILURE);
     }
 
+    num_pages = file_length / PAGE_SIZE;
     pages.resize(TABLE_MAX_PAGES);
 }
 
@@ -103,4 +104,8 @@ size_t Pager::get_file_length() const {
 
 std::vector<std::unique_ptr<char[]>>& Pager::get_pages() {
     return pages;
+}
+
+size_t Pager::size() const {
+    return num_pages;
 }

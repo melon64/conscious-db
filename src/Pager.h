@@ -23,6 +23,8 @@ public:
 
     size_t get_file_length() const;
 
+    size_t size() const;
+
     std::vector<std::unique_ptr<char[]>>& get_pages();
 
 private:

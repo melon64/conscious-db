@@ -61,6 +61,9 @@ int main(int argc, char* argv[]) {
             case ExecuteResult::SUCCESS:
                 cout << "Executed.\n";
                 break;
+            case ExecuteResult::DUPLICATE_KEY:
+                cout << "Error: Duplicate key.\n";
+                break;
             case ExecuteResult::TABLE_FULL:
                 cout << "Error: Table full.\n";
                 continue;
