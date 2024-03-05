@@ -1,3 +1,6 @@
+#ifndef BTREENODE_H
+#define BTREENODE_H
+
 #include <cstdint>
 #include <vector>
 #include <cstring>
@@ -67,3 +70,5 @@ private:
     // NodeType nodeType;
     // bool isRoot;
 };
+
+#endif
