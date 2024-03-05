@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <vector>
 #include <cstring>
+#include <iostream>
 
 #include "Pager.h"
 #include "Row.h"
@@ -63,7 +64,16 @@ public:
     void initialize_leaf_node(){
         *leaf_node_num_cells() = 0;
     }
-    
+
+    void print_leaf_node(){
+        uint32_t num_cells = *leaf_node_num_cells();
+        std::cout << "leaf (size " << num_cells << "):\n";
+        for (uint32_t i = 0; i < num_cells; i++){
+            uint32_t key = *leaf_node_key(i);
+            std::cout << "  - " << i << " : " << key << std::endl;
+        }
+    }
+
 
 private:
     void *node;

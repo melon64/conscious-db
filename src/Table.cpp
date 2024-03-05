@@ -49,7 +49,7 @@ void Table::leaf_node_insert(Cursor *cursor, uint32_t key, Row* value) {
 
     size_t num_cells = *(node.leaf_node_num_cells());
     if (num_cells >= LEAF_NODE_MAX_CELLS) {
-        // split
+        std::cerr << "Need to implement splitting a leaf node\n";
         return;
     }
 
@@ -66,13 +66,20 @@ void Table::leaf_node_insert(Cursor *cursor, uint32_t key, Row* value) {
     *(node.leaf_node_num_cells()) += 1;
     *(node.leaf_node_key(cursor->cell_num)) = key;
     value->serialize(static_cast<char*>(node.leaf_node_value(cursor->cell_num)));
+
+    // void *temp = n + LEAF_NODE_HEADER_SIZE + cursor->cell_num * LEAF_NODE_CELL_SIZE + LEAF_NODE_KEY_SIZE;
+    // Row row;
+    // row.deserialize(static_cast<char*>(temp));
+    // std::cout << "value serialized at memory: " << row.get_id() << " " << row.get_username() << " " << row.get_email() << std::endl;
 }
 
 void Table::select() {
     for (Cursor cursor = this->start(); cursor != this->end(); ++cursor) {
         Row row;
-        row.deserialize(static_cast<char*>(*cursor));
-        std::cout << row.get_id() << " " << row.get_username() << " " << row.get_email() << std::endl;
+        int key = *(static_cast<uint32_t*>(*cursor));
+        void *temp = static_cast<char*>(*cursor) + LEAF_NODE_KEY_SIZE;
+        row.deserialize(static_cast<char*>(temp));
+        std::cout << "index: " << key << " value: " << row.get_id() << " " << row.get_username() << " " << row.get_email() << std::endl;
     }
 }
 
@@ -89,6 +96,27 @@ Cursor Table::end() {
     size_t num_cells = *(node.leaf_node_num_cells());
 
     return Cursor(this, root_page_num, num_cells, true);
+}
+
+int Table::size() {
+    void *root_node = pager->get_page(root_page_num);
+    BTreeNode node = BTreeNode(root_node);
+    return *(node.leaf_node_num_cells());
+}
+
+void Table::print_constants(){
+        std::cout << "ROW_SIZE: " << sizeof(Row) << std::endl;
+        std::cout << "COMMON_NODE_HEADER_SIZE: " << (int) COMMON_NODE_HEADER_SIZE << std::endl;
+        std::cout << "LEAF_NODE_HEADER_SIZE: " << LEAF_NODE_HEADER_SIZE << std::endl;
+        std::cout << "LEAF_NODE_CELL_SIZE: " << LEAF_NODE_CELL_SIZE << std::endl;
+        std::cout << "LEAF_NODE_SPACE_FOR_CELLS: " << LEAF_NODE_SPACE_FOR_CELLS << std::endl;
+        std::cout << "LEAF_NODE_MAX_CELLS: " << LEAF_NODE_MAX_CELLS << std::endl;
+}
+
+void Table::print_tree(){
+    void *root_node = pager->get_page(root_page_num);
+    BTreeNode node = BTreeNode(root_node);
+    node.print_leaf_node();
 }
 
 

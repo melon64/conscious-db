@@ -32,6 +32,10 @@ public:
 
     int size();
 
+    void print_constants();
+
+    void print_tree();
+
 private:
     size_t root_page_num;
     std::shared_ptr<Pager> pager;

@@ -12,8 +12,6 @@ public:
 
     Cursor& operator++();
 
-    Cursor& operator--();
-
     bool operator!=(const Cursor& other) const;
 
 // private:
