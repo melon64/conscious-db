@@ -48,7 +48,7 @@ char* Pager::get_page(size_t page_num) {
             }
         }
         if (page_num >= num_pages){
-            num_pages = page_num + 1;
+            this->num_pages = page_num + 1; //changed
         }
     }
     
@@ -107,5 +107,9 @@ std::vector<std::unique_ptr<char[]>>& Pager::get_pages() {
 }
 
 size_t Pager::size() const {
+    return num_pages;
+}
+
+size_t Pager::get_unused_page_num() {
     return num_pages;
 }

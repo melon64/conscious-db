@@ -24,6 +24,8 @@ public:
 
     void leaf_node_insert(Cursor cursor, const uint32_t &key, const Row &value);
 
+    void leaf_node_split_and_insert(Cursor cursor, const uint32_t &key, const Row &value);
+
     void select();
 
     Cursor start();
@@ -34,17 +36,19 @@ public:
 
     void print_constants();
 
-    void print_tree();
+    void print_tree(uint32_t page_num, uint32_t indentation_level);
 
     Cursor table_find(uint32_t key);
 
     Cursor leaf_node_find(uint32_t key);
 
+    void create_new_root(uint32_t right_child_page_num);
+
 private:
     size_t root_page_num;
     std::shared_ptr<Pager> pager;
 
-    // void* row_slot(size_t row_num);
+    void indent(uint32_t level);
 };
 
 #endif

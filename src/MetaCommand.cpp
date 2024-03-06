@@ -12,7 +12,7 @@ MetaCommandResult MetaCommand::execute_meta_command(std::string input, Table* ta
     }
     else if (input == ".btree"){
         std::cout << "Tree:\n";
-        table->print_tree();
+        table->print_tree(0, 0);
         return MetaCommandResult::SUCCESS;
     }
     else {
