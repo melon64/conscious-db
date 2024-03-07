@@ -72,6 +72,45 @@ void Table::leaf_node_insert(Cursor cursor, const uint32_t &key, const Row &valu
     value.serialize(static_cast<char*>(node.leaf_node_value(cursor.cell_num)));
 }
 
+void Table::internal_node_insert(uint32_t parent_page_num, uint32_t child_page_num){
+    void *parent = pager->get_page(parent_page_num);
+    BTreeNode parent_b = BTreeNode(parent);
+    void *child = pager->get_page(child_page_num);
+    BTreeNode child_b = BTreeNode(child);
+
+    uint32_t child_max = child_b.get_max_key();
+    uint32_t index = parent_b.internal_node_find_child(child_max);
+
+    uint32_t original_num_keys = *(parent_b.internal_node_num_keys());
+    *(parent_b.internal_node_num_keys()) = original_num_keys + 1;
+
+    if (original_num_keys >= INTERNAL_NODE_MAX_CELLS){
+        std::cerr << "Need to implement splitting internal node\n";
+        exit(EXIT_FAILURE);
+    }
+
+    uint32_t right_child_page_num = *(parent_b.internal_node_right_child());
+    void *right_child = pager->get_page(right_child_page_num);
+    BTreeNode right_child_b = BTreeNode(right_child);
+
+    if (child_max > right_child_b.get_max_key()){
+        *(parent_b.internal_node_key(original_num_keys)) = right_child_b.get_max_key();
+        *(parent_b.internal_node_child(original_num_keys)) = right_child_page_num;
+        *(parent_b.internal_node_right_child()) = child_page_num;
+    }
+    else{
+        for (uint32_t i = original_num_keys; i > index; i--) {
+            std::copy(
+                (parent_b.internal_node_cell(i - 1)),
+                (parent_b.internal_node_cell(i - 1)) + INTERNAL_NODE_CELL_SIZE,
+                (parent_b.internal_node_cell(i))  
+            );
+        }
+        *(parent_b.internal_node_child(index)) = child_page_num;
+        *(parent_b.internal_node_key(index)) = child_max;
+    }
+}
+
 void Table::leaf_node_split_and_insert(Cursor cursor, const uint32_t &key, const Row &value) {
     /*
     new node and move half the cells
@@ -86,7 +125,7 @@ void Table::leaf_node_split_and_insert(Cursor cursor, const uint32_t &key, const
     void *new_node = pager->get_page(new_page_num);
     BTreeNode new_node_b = BTreeNode(new_node);
     new_node_b.initialize_leaf_node();
-    // *(new_node_b.node_parent()) = *(old_node_b.node_parent());
+    *(new_node_b.node_parent()) = *(old_node_b.node_parent());
 
     *(new_node_b.leaf_node_next_leaf()) = *(old_node_b.leaf_node_next_leaf());
     *(old_node_b.leaf_node_next_leaf()) = new_page_num;
@@ -136,8 +175,14 @@ void Table::leaf_node_split_and_insert(Cursor cursor, const uint32_t &key, const
         return create_new_root(new_page_num);
     } 
     else{
-        std::cerr << "Need to implement updating parent after split\n";
-        exit(EXIT_FAILURE);
+        uint32_t parent_page_num = *(old_node_b.node_parent());
+        uint32_t new_max = new_node_b.get_max_key();
+        void *parent = pager->get_page(parent_page_num);
+        BTreeNode parent_b = BTreeNode(parent);
+
+        parent_b.update_internal_node_key(old_node_max, new_max);
+
+        internal_node_insert(parent_page_num, new_page_num);
     }
 }
 
@@ -151,6 +196,8 @@ void Table::create_new_root(uint32_t right_child_page_num) {
     uint32_t left_child_page_num = pager->get_unused_page_num();
     void *root_node = pager->get_page(root_page_num);
     BTreeNode root_node_b = BTreeNode(root_node);
+    void *right_child = pager->get_page(right_child_page_num);
+    BTreeNode right_child_b = BTreeNode(right_child);
     void *left_child = pager->get_page(left_child_page_num);
     BTreeNode left_child_b = BTreeNode(left_child);
 
@@ -167,9 +214,13 @@ void Table::create_new_root(uint32_t right_child_page_num) {
     root_node_b.set_root(true);
     *(root_node_b.internal_node_num_keys()) = 1;
     *(root_node_b.internal_node_child(0)) = left_child_page_num;
+
     uint32_t left_child_max_key = left_child_b.get_max_key();
+
     *(root_node_b.internal_node_key(0)) = left_child_max_key;
     *(root_node_b.internal_node_right_child()) = right_child_page_num;
+    *(left_child_b.node_parent()) = root_page_num;
+    *(right_child_b.node_parent()) = root_page_num;
 }
 
 Cursor Table::table_find(uint32_t key) {
@@ -185,25 +236,11 @@ Cursor Table::table_find(uint32_t key) {
 }
 
 Cursor Table::internal_node_find(uint32_t key, uint32_t page_num) {
-    void *root_node = pager->get_page(page_num);
-    BTreeNode node = BTreeNode(root_node);
-    size_t num_keys = *(node.internal_node_num_keys());
-
-    uint32_t min_index = 0;
-    uint32_t max_index = num_keys;
-
-    while (min_index != max_index){
-        uint32_t index = (min_index + max_index) / 2;
-        uint32_t key_to_right = *(node.internal_node_key(index));
-        if (key_to_right >= key){
-            max_index = index;
-        }
-        else {
-            min_index = index + 1;
-        }
-    }
+    void *n = pager->get_page(page_num);
+    BTreeNode node = BTreeNode(n);
     
-    uint32_t child_num = *(node.internal_node_child(min_index));
+    uint32_t child_index = node.internal_node_find_child(key);
+    uint32_t child_num = *(node.internal_node_child(child_index));
     void *child = pager->get_page(child_num);
     BTreeNode child_node = BTreeNode(child);
 
@@ -273,15 +310,13 @@ Cursor Table::end() { //deprecated
 }
 
 int Table::size() {
-    void *root_node = pager->get_page(root_page_num);
-    BTreeNode node = BTreeNode(root_node);
-    //if root is leaf, return number of cells
-    if (node.get_node_type() == NodeType::Leaf){
-        return *(node.leaf_node_num_cells());
+    Cursor cursor = this->start();
+    int count = 0;
+    while (!cursor.end_of_table) {
+        count++;
+        ++cursor;
     }
-
-    return 0;
-
+    return count;
 }
 
 void Table::print_constants(){

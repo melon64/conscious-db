@@ -24,6 +24,8 @@ public:
 
     void leaf_node_insert(Cursor cursor, const uint32_t &key, const Row &value);
 
+    void internal_node_insert(uint32_t parent_page_num, uint32_t child_page_num);
+
     void leaf_node_split_and_insert(Cursor cursor, const uint32_t &key, const Row &value);
 
     void select();

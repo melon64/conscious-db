@@ -13,97 +13,97 @@
 using namespace std;
 
 
-// TEST(REPLTest, ReadInput) {
-//     stringstream ss;
-//     ss << "test";
-//     InputBuffer *input_buffer = InputBuffer::GetInstance();
-//     input_buffer->read_input(ss);
-//     ASSERT_EQ(input_buffer->get_input(), "test"); //input "test" for cin
-// }
+TEST(REPLTest, ReadInput) {
+    stringstream ss;
+    ss << "test";
+    InputBuffer *input_buffer = InputBuffer::GetInstance();
+    input_buffer->read_input(ss);
+    ASSERT_EQ(input_buffer->get_input(), "test"); //input "test" for cin
+}
 
-// TEST(DBTest, MemoryTest){
-//     Row row;
-//     row.set_id(1);
-//     row.set_username("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-//     row.set_email("test");
+TEST(DBTest, MemoryTest){
+    Row row;
+    row.set_id(1);
+    row.set_username("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    row.set_email("test");
 
-//     std::vector<void*> pages;
-//     size_t PAGE_SIZE = 4096;
-//     size_t TABLE_MAX_PAGES = 100;
-//     size_t ROWS_PER_PAGE = PAGE_SIZE / sizeof(Row);
-//     size_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGES;
+    std::vector<void*> pages;
+    size_t PAGE_SIZE = 4096;
+    size_t TABLE_MAX_PAGES = 100;
+    size_t ROWS_PER_PAGE = PAGE_SIZE / sizeof(Row);
+    size_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGES;
 
-//     pages.resize(TABLE_MAX_PAGES, nullptr);
+    pages.resize(TABLE_MAX_PAGES, nullptr);
 
-//     pages[0] = new char[PAGE_SIZE];
-//     void* destination = static_cast<char*>(pages[0]);
-//     row.serialize(static_cast<char*>(destination));
+    pages[0] = new char[PAGE_SIZE];
+    void* destination = static_cast<char*>(pages[0]);
+    row.serialize(static_cast<char*>(destination));
 
-//     Row row1;
-//     row1.deserialize(static_cast<const char*>(destination));
-//     std::cout << row1.get_id() << " " << row1.get_username() << " " << row1.get_email() << std::endl;
+    Row row1;
+    row1.deserialize(static_cast<const char*>(destination));
+    std::cout << row1.get_id() << " " << row1.get_username() << " " << row1.get_email() << std::endl;
 
-//     ASSERT_EQ(std::string(row1.get_username()), "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-// }
+    ASSERT_EQ(std::string(row1.get_username()), "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+}
 
-// TEST(DBTest, MemoryTest1){
-//     string filename = "test.db";
+TEST(DBTest, MemoryTest1){
+    string filename = "test.db";
 
-//     ofstream file(filename, ios::binary);
-//     file.close();
+    ofstream file(filename, ios::binary);
+    file.close();
     
-//     InputBuffer* input_buffer = InputBuffer::GetInstance();
-//     Table *table = new Table();
-//     table->db_open(filename);
+    InputBuffer* input_buffer = InputBuffer::GetInstance();
+    Table *table = new Table();
+    table->db_open(filename);
 
-//     string username = string(32, 'a');
-//     string email = string(255, 'a');
-//     string sIn = "insert 0 " + username + " " + email;
-//     stringstream ss;
-//     ss << sIn;   
+    string username = string(32, 'a');
+    string email = string(255, 'a');
+    string sIn = "insert 0 " + username + " " + email;
+    stringstream ss;
+    ss << sIn;   
 
-//     input_buffer->read_input(ss);
-//     string input = input_buffer->get_input();
+    input_buffer->read_input(ss);
+    string input = input_buffer->get_input();
     
-//     Statement statement;
-//     switch (statement.prepare_statement(input)) {
-//         case PrepareResult::SUCCESS:
-//             break;
-//         case PrepareResult::NEGATIVE_ID:
-//             cout << "ID must be positive.\n";
-//             break;
-//         case PrepareResult::STRING_TOO_LONG:
-//             cout << "String is too long.\n";
-//             break;
-//         case PrepareResult::SYNTAX_ERROR:
-//             cout << "Syntax error. Could not parse statement.\n";
-//             break;
-//         case PrepareResult::UNRECOGNIZED_STATEMENT:
-//             cout << "Unrecognized keyword at start of '" << input << "'.\n";
-//             break;
-//     }
+    Statement statement;
+    switch (statement.prepare_statement(input)) {
+        case PrepareResult::SUCCESS:
+            break;
+        case PrepareResult::NEGATIVE_ID:
+            cout << "ID must be positive.\n";
+            break;
+        case PrepareResult::STRING_TOO_LONG:
+            cout << "String is too long.\n";
+            break;
+        case PrepareResult::SYNTAX_ERROR:
+            cout << "Syntax error. Could not parse statement.\n";
+            break;
+        case PrepareResult::UNRECOGNIZED_STATEMENT:
+            cout << "Unrecognized keyword at start of '" << input << "'.\n";
+            break;
+    }
 
-//     switch (statement.execute_statement(table)) {
-//         case ExecuteResult::SUCCESS:
-//             cout << "Executed.\n";
-//             break;
-//         case ExecuteResult::TABLE_FULL:
-//             cout << "Error: Table full.\n";
-//             break;
-//     }
+    switch (statement.execute_statement(table)) {
+        case ExecuteResult::SUCCESS:
+            cout << "Executed.\n";
+            break;
+        case ExecuteResult::TABLE_FULL:
+            cout << "Error: Table full.\n";
+            break;
+    }
     
-//     string sIn1 = "select";
-//     stringstream ss1;
-//     ss1 << sIn1;
-//     input_buffer->read_input(ss1);
-//     string input1 = input_buffer->get_input();
+    string sIn1 = "select";
+    stringstream ss1;
+    ss1 << sIn1;
+    input_buffer->read_input(ss1);
+    string input1 = input_buffer->get_input();
 
-//     Statement statement1;
-//     statement1.prepare_statement(input1);
-//     statement1.execute_statement(table);
+    Statement statement1;
+    statement1.prepare_statement(input1);
+    statement1.execute_statement(table);
     
-//     ASSERT_EQ(table->size(), 1);
-// }
+    ASSERT_EQ(table->size(), 1);
+}
 
 // TEST(DBTest, StressTest1) {
 //     string filename = "test.db";
@@ -505,7 +505,7 @@ TEST(DBTestBTree, PersistenceTest){
     statement1.prepare_statement(input1);
     statement1.execute_statement(table3);
 
-    ASSERT_EQ(table3->size(), 40);
+    ASSERT_EQ(table3->size(), 15);
 }
 
 TEST(DBTestBTree, TreeTest){
@@ -646,4 +646,57 @@ TEST(DBTestBTree, OrderTest){
 
     ASSERT_EQ(table->size(), 3);
 
+}
+
+TEST(DBTestBTree, StressTest){
+    string filename = "test.db";
+
+    ofstream file(filename, ios::binary);
+    file.close();
+
+    InputBuffer* input_buffer = InputBuffer::GetInstance();
+    Table *table = new Table();
+    table->db_open(filename);
+
+    for (int i = 0; i < 30; i++) {
+        string username = "test";
+        string email = "test@test.test";
+        string sIn = "insert " + to_string(i) + " " + username + " " + email;
+        stringstream ss;
+        ss << sIn;  
+
+        input_buffer->read_input(ss);
+        string input = input_buffer->get_input();
+        
+        Statement statement;
+        switch (statement.prepare_statement(input)) {
+            case PrepareResult::SUCCESS:
+                break;
+            case PrepareResult::NEGATIVE_ID:
+                cout << "ID must be positive.\n";
+                continue;
+            case PrepareResult::STRING_TOO_LONG:
+                cout << "String is too long.\n";
+                continue;
+            case PrepareResult::SYNTAX_ERROR:
+                cout << "Syntax error. Could not parse statement.\n";
+                continue;
+            case PrepareResult::UNRECOGNIZED_STATEMENT:
+                cout << "Unrecognized keyword at start of '" << input << "'.\n";
+                continue;
+        }
+
+        switch (statement.execute_statement(table)) {
+            case ExecuteResult::SUCCESS:
+                cout << "Executed.\n";
+                break;
+            case ExecuteResult::TABLE_FULL:
+                cout << "Error: Table full.\n";
+                continue;
+        }
+    }
+
+    table->print_tree(0, 0);
+
+    ASSERT_EQ(table->size(), 30);
 }

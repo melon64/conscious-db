@@ -51,6 +51,7 @@ const uint32_t INTERNAL_NODE_HEADER_SIZE = COMMON_NODE_HEADER_SIZE +
 const uint32_t INTERNAL_NODE_KEY_SIZE = sizeof(uint32_t);
 const uint32_t INTERNAL_NODE_CHILD_SIZE = sizeof(uint32_t);
 const uint32_t INTERNAL_NODE_CELL_SIZE = INTERNAL_NODE_CHILD_SIZE + INTERNAL_NODE_KEY_SIZE;
+const uint32_t INTERNAL_NODE_MAX_CELLS = 3;
 
 enum class NodeType {
     Internal,
@@ -79,6 +80,10 @@ public:
     void set_root(bool isRoot){
         uint8_t value = static_cast<uint8_t>(isRoot);
         *static_cast<uint8_t*>(node + IS_ROOT_OFFSET) = value;
+    }
+
+    uint32_t *node_parent(){
+        return static_cast<uint32_t*>(node + PARENT_POINTER_OFFSET);
     }
 
     uint32_t *leaf_node_num_cells(){
@@ -141,7 +146,32 @@ public:
     }
 
     uint32_t *internal_node_key(uint32_t key_num){
-        return internal_node_cell(key_num) + INTERNAL_NODE_CHILD_SIZE;
+        return static_cast<uint32_t*>(((void*)internal_node_cell(key_num) + INTERNAL_NODE_CHILD_SIZE));
+    }
+
+    void update_internal_node_key(uint32_t old_key, uint32_t new_key){
+        uint32_t old_child_index = internal_node_find_child(old_key);
+        *internal_node_key(old_child_index) = new_key;
+    }
+
+    uint32_t internal_node_find_child(uint32_t key) {
+        size_t num_keys = *(this->internal_node_num_keys());
+
+        uint32_t min_index = 0;
+        uint32_t max_index = num_keys;
+
+        while (min_index != max_index){
+            uint32_t index = (min_index + max_index) / 2;
+            uint32_t key_to_right = *(this->internal_node_key(index));
+            if (key_to_right >= key){
+                max_index = index;
+            }
+            else {
+                min_index = index + 1;
+            }
+        }
+
+        return min_index;
     }
 
     uint32_t get_max_key(){
