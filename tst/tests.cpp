@@ -449,7 +449,7 @@ TEST(DBTestBTree, PersistenceTest){
     Table *table2 = new Table();
     table2->db_open(filename);
 
-    for (int i = 10; i < 14; i++) {
+    for (int i = 10; i < 15; i++) {
         string username = "test";
         string email = "test@test.test";
         string sIn = "insert " + to_string(i) + " " + username + " " + email;
@@ -487,8 +487,6 @@ TEST(DBTestBTree, PersistenceTest){
         }
     }
 
-    table2->print_tree(0, 0);
-
     table2->db_close();
     delete table2;
 
@@ -507,7 +505,7 @@ TEST(DBTestBTree, PersistenceTest){
     statement1.prepare_statement(input1);
     statement1.execute_statement(table3);
 
-    ASSERT_EQ(table3->size(), 13);
+    ASSERT_EQ(table3->size(), 40);
 }
 
 TEST(DBTestBTree, TreeTest){

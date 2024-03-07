@@ -147,6 +147,16 @@ public:
         return -1;
     }
 
+    uint32_t get_node_size(){
+        switch (get_node_type()){
+            case NodeType::Internal:
+                return INTERNAL_NODE_HEADER_SIZE + *internal_node_num_keys() * INTERNAL_NODE_CELL_SIZE;
+            case NodeType::Leaf:
+                return LEAF_NODE_HEADER_SIZE + *leaf_node_num_cells() * LEAF_NODE_CELL_SIZE;
+        }
+        return -1;
+    }
+
     void print_leaf_node(){
         uint32_t num_cells = *leaf_node_num_cells();
         std::cout << "leaf (size " << num_cells << "):\n";

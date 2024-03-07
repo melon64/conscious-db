@@ -92,7 +92,6 @@ void Table::leaf_node_split_and_insert(Cursor cursor, const uint32_t &key, const
     */    
 
     for (uint32_t i = LEAF_NODE_MAX_CELLS; i > 0; i--){
-        std::cout << "cell moved: " << i << std::endl;
         void *destination_node;
         if (i >= LEAF_NODE_LEFT_SPLIT_COUNT){
             destination_node = new_node;
@@ -172,20 +171,50 @@ Cursor Table::table_find(uint32_t key) {
     BTreeNode node = BTreeNode(root_node);
 
     if(node.get_node_type() == NodeType::Leaf){
-        return leaf_node_find(key);
+        return leaf_node_find(key, root_page_num);
     }
     else {
-        std::cerr << "Need to implement searching an internal node\n";
-        exit(EXIT_FAILURE);
+        return internal_node_find(key, root_page_num);
     }
 }
 
-Cursor Table::leaf_node_find(uint32_t key) {
-    void *root_node = pager->get_page(root_page_num);
+Cursor Table::internal_node_find(uint32_t key, uint32_t page_num) {
+    void *root_node = pager->get_page(page_num);
+    BTreeNode node = BTreeNode(root_node);
+    size_t num_keys = *(node.internal_node_num_keys());
+
+    uint32_t min_index = 0;
+    uint32_t max_index = num_keys;
+
+    while (min_index != max_index){
+        uint32_t index = (min_index + max_index) / 2;
+        uint32_t key_to_right = *(node.internal_node_key(index));
+        if (key_to_right >= key){
+            max_index = index;
+        }
+        else {
+            min_index = index + 1;
+        }
+    }
+    
+    uint32_t child_num = *(node.internal_node_child(min_index));
+    void *child = pager->get_page(child_num);
+    BTreeNode child_node = BTreeNode(child);
+
+    switch (child_node.get_node_type()){
+        case NodeType::Leaf:
+            return leaf_node_find(key, child_num);
+        case NodeType::Internal:
+            return internal_node_find(key, child_num);
+    }
+}
+
+Cursor Table::leaf_node_find(uint32_t key, uint32_t page_num) {
+    void *root_node = pager->get_page(page_num);
     BTreeNode node = BTreeNode(root_node);
     size_t num_cells = *(node.leaf_node_num_cells());
 
-    Cursor cursor(this, root_page_num, 0, num_cells == 0);
+    Cursor cursor(this, page_num, 0, num_cells == 0);
 
     uint32_t min_index = 0;
     uint32_t max_index = num_cells;
@@ -239,7 +268,13 @@ Cursor Table::end() {
 int Table::size() {
     void *root_node = pager->get_page(root_page_num);
     BTreeNode node = BTreeNode(root_node);
-    return *(node.leaf_node_num_cells());
+    //if root is leaf, return number of cells
+    if (node.get_node_type() == NodeType::Leaf){
+        return *(node.leaf_node_num_cells());
+    }
+
+    return 0;
+
 }
 
 void Table::print_constants(){

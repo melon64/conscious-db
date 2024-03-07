@@ -40,7 +40,9 @@ public:
 
     Cursor table_find(uint32_t key);
 
-    Cursor leaf_node_find(uint32_t key);
+    Cursor leaf_node_find(uint32_t key, uint32_t page_num);
+
+    Cursor internal_node_find(uint32_t key, uint32_t page_num);
 
     void create_new_root(uint32_t right_child_page_num);
 
