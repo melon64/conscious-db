@@ -80,11 +80,16 @@ void Table::leaf_node_split_and_insert(Cursor cursor, const uint32_t &key, const
     */
     void *old_node = pager->get_page(cursor.page_num);
     BTreeNode old_node_b = BTreeNode(old_node);
+    uint32_t old_node_max = old_node_b.get_max_key();
     uint32_t new_page_num = pager->get_unused_page_num();
 
     void *new_node = pager->get_page(new_page_num);
     BTreeNode new_node_b = BTreeNode(new_node);
     new_node_b.initialize_leaf_node();
+    // *(new_node_b.node_parent()) = *(old_node_b.node_parent());
+
+    *(new_node_b.leaf_node_next_leaf()) = *(old_node_b.leaf_node_next_leaf());
+    *(old_node_b.leaf_node_next_leaf()) = new_page_num;
 
     /*
     divide existing cells between old (left) and new (right) node
@@ -104,7 +109,8 @@ void Table::leaf_node_split_and_insert(Cursor cursor, const uint32_t &key, const
         void *destination = destination_node_b.leaf_node_cell(index_within_node);
 
         if (i == cursor.cell_num){
-            value.serialize(static_cast<char*>(destination));
+            value.serialize(static_cast<char*>(destination_node_b.leaf_node_value(index_within_node)));
+            *(destination_node_b.leaf_node_key(index_within_node)) = key;
         }
         else if (i > cursor.cell_num){
             std::copy(
@@ -241,7 +247,7 @@ Cursor Table::leaf_node_find(uint32_t key, uint32_t page_num) {
 }
 
 void Table::select() {
-    for (Cursor cursor = this->start(); cursor != this->end(); ++cursor) {
+    for (Cursor cursor = this->start(); !cursor.end_of_table; ++cursor) {
         Row row;
         int key = *(static_cast<uint32_t*>(*cursor));
         void *temp = static_cast<char*>(*cursor) + LEAF_NODE_KEY_SIZE;
@@ -251,13 +257,14 @@ void Table::select() {
 }
 
 Cursor Table::start() {
-    void *root_node = pager->get_page(root_page_num);
+    Cursor cursor = table_find(0);
+    void *root_node = pager->get_page(cursor.page_num);
     BTreeNode node = BTreeNode(root_node);
     size_t num_cells = *(node.leaf_node_num_cells());
-    return Cursor(this, root_page_num, 0, num_cells == 0);
+    return Cursor(this, cursor.page_num, 0, num_cells == 0);
 }
 
-Cursor Table::end() {
+Cursor Table::end() { //deprecated
     void *root_node = pager->get_page(root_page_num);
     BTreeNode node = BTreeNode(root_node);
     size_t num_cells = *(node.leaf_node_num_cells());

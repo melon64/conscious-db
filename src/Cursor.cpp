@@ -13,7 +13,13 @@ Cursor& Cursor::operator++() {
     BTreeNode node = BTreeNode(table->pager->get_page(page_num));
     cell_num++;
     if (cell_num >= *(node.leaf_node_num_cells())){ //maybe change to >?
-        end_of_table = true;
+        uint32_t next_page_num = *node.leaf_node_next_leaf();
+        if (next_page_num == 0){
+            end_of_table = true;
+        } else {
+            page_num = next_page_num;
+            cell_num = 0;
+        }
     }
     return *this;
 }

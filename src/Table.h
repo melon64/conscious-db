@@ -30,7 +30,7 @@ public:
 
     Cursor start();
 
-    Cursor end();
+    Cursor end(); //deprecated
 
     int size();
 
