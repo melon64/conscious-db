@@ -28,6 +28,8 @@ public:
 
     void leaf_node_split_and_insert(Cursor cursor, const uint32_t &key, const Row &value);
 
+    void internal_node_split_and_insert(uint32_t old_page_num, uint32_t new_page_num);
+
     void select();
 
     Cursor start();
@@ -45,6 +47,8 @@ public:
     Cursor leaf_node_find(uint32_t key, uint32_t page_num);
 
     Cursor internal_node_find(uint32_t key, uint32_t page_num);
+
+    uint32_t get_node_max_key(BTreeNode node);
 
     void create_new_root(uint32_t right_child_page_num);
 

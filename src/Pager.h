@@ -10,6 +10,8 @@
 
 static const size_t PAGE_SIZE = 4096;
 static const size_t TABLE_MAX_PAGES = 100;
+static const size_t INVALID_PAGE_NUM = UINT32_MAX;
+
 
 class Pager {
 public:

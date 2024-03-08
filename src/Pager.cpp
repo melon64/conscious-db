@@ -22,6 +22,8 @@ Pager::Pager(const std::string& filename) : file_length(0), pages(file_length / 
 char* Pager::get_page(size_t page_num) {
     if (page_num > TABLE_MAX_PAGES) {
         std::cerr << "Tried to fetch page number out of bounds\n";
+        std::cerr << "Page number: " << page_num << "\n";
+        std::cerr << "Max page number: " << TABLE_MAX_PAGES << "\n";
         exit(EXIT_FAILURE);
     }
 

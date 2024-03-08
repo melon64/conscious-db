@@ -117,6 +117,7 @@ public:
         set_node_type(NodeType::Internal);
         set_root(false);
         *internal_node_num_keys() = 0;
+        *internal_node_right_child() = INVALID_PAGE_NUM;
     }
 
     uint32_t *internal_node_num_keys(){
@@ -138,10 +139,20 @@ public:
             exit(EXIT_FAILURE);
         }
         else if (child_num == num_keys){
-            return internal_node_right_child();
+            uint32_t *right_child = internal_node_right_child();
+            if (*right_child == INVALID_PAGE_NUM){
+                std::cerr << "Tried to access right child when it doesn't exist" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            return right_child;
         }
         else {
-            return internal_node_cell(child_num);
+            uint32_t *child = internal_node_cell(child_num);
+            if (*child == INVALID_PAGE_NUM){
+                std::cerr << "Tried to access child " << child_num << " but it was an invalid page" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            return child;
         }
     }
 

@@ -658,7 +658,7 @@ TEST(DBTestBTree, StressTest){
     Table *table = new Table();
     table->db_open(filename);
 
-    for (int i = 0; i < 30; i++) {
+    for (int i = 0; i < 40; i++) {
         string username = "test";
         string email = "test@test.test";
         string sIn = "insert " + to_string(i) + " " + username + " " + email;
@@ -698,5 +698,16 @@ TEST(DBTestBTree, StressTest){
 
     table->print_tree(0, 0);
 
-    ASSERT_EQ(table->size(), 30);
+    //execute select
+    string sIn1 = "select";
+    stringstream ss1;
+    ss1 << sIn1;
+    input_buffer->read_input(ss1);
+    string input1 = input_buffer->get_input();
+
+    Statement statement1;
+    statement1.prepare_statement(input1);
+    statement1.execute_statement(table);
+
+    ASSERT_EQ(table->size(), 200);
 }
